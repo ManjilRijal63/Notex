@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// role dui ota vanda badi narkahne. bcz there might be admin , Admin, admini etc. 
+enum Role {
+  USER
+  ADMIN
+}
+
+
+model User {
+  id        String   @id @default(cuid())
+
+  name      String
+  email     String   @unique
+  password  String?
+
+  image     String?
+
+  role      Role     @default(USER)
+
+  notes     Note[]
+  comments  Comment[]
+  likes     Like[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+
+
+model Note {
+  id          String   @id @default(cuid())
+
+  title       String
+  description String?
+
+  fileUrl     String
+
+  authorId    String
+
+  author      User     @relation(fields: [authorId], references: [id])
+
+  comments    Comment[]
+  likes       Like[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+
+
+
+
+model Comment {
+  id        String   @id @default(cuid())
+
+  content   String
+
+  userId    String
+  noteId    String
+
+  user      User @relation(fields: [userId], references: [id])
+
+  note      Note @relation(fields: [noteId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+
+
+
+
+
+model Like {
+  id        String @id @default(cuid())
+
+  userId    String
+  noteId    String
+
+  user      User @relation(fields: [userId], references: [id])
+
+  note      Note @relation(fields: [noteId], references: [id])
+
+  @@unique([userId, noteId])
+}
+
+
+
