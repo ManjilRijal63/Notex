@@ -1,15 +1,38 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import {
+  createNoteSchema,
+  CreateNoteSchema,
+} from "@/schemas/note-schema";
 
-export async function createSampleNote() {
-  const note = await prisma.note.create({
+export async function createNote(
+  values: CreateNoteSchema
+) {
+  const validatedFields =
+    createNoteSchema.safeParse(values);
+
+  if (!validatedFields.success) {
+    return {
+      error: "Invalid fields",
+    };
+  }
+
+  const { title, content, tags } =
+    validatedFields.data;
+
+  await prisma.note.create({
     data: {
-      title: "My First Note ever",
-      content: "This is my very first note using Prisma. ok",
-      tags: ["nextjs", "prisma"],
+      title,
+      content,
+      tags: tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
     },
   });
 
-  return note;
+  return {
+    success: "Note created",
+  };
 }
