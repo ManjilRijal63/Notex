@@ -5,18 +5,17 @@ import {
   CreateNoteSchema,
   createNoteSchema,
 } from "@/schemas/note-schema";
-
+import { toast } from "sonner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import { useState } from "react";
+
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 export function CreateNoteForm() {
-  const [serverMessage, setServerMessage] =
-    useState("");
+  
 
   const {
     register,
@@ -34,22 +33,21 @@ export function CreateNoteForm() {
   });
 
   async function onSubmit(
-    values: CreateNoteSchema
-  ) {
-    setServerMessage("");
+  values: CreateNoteSchema
+) {
+  const result = await createNote(values);
 
-    const result = await createNote(values);
-
-    if (result.error) {
-      setServerMessage(result.error);
-      return;
-    }
-
-    if (result.success) {
-      setServerMessage(result.success);
-      reset();
-    }
+  if (result.error) {
+    toast.error(result.error);
+    return;
   }
+
+  if (result.success) {
+    toast.success(result.success);
+
+    reset();
+  }
+}
 
   return (
     <div className="border rounded-xl p-6">
@@ -112,20 +110,17 @@ export function CreateNoteForm() {
         </div>
 
         <button
-          type="submit"
-          disabled={isSubmitting}
-          className="bg-black text-white px-5 py-2 rounded-lg"
-        >
+  type="submit"
+  disabled={isSubmitting}
+  className="bg-black text-white px-5 py-2 rounded-lg disabled:opacity-50"
+>
           {isSubmitting
-            ? "Creating..."
-            : "Create Note"}
+  ? "Creating Note..."
+  : "Create Note"}
         </button>
 
-        {serverMessage && (
-          <p className="text-sm">
-            {serverMessage}
-          </p>
-        )}
+        
+    
       </form>
     </div>
   );

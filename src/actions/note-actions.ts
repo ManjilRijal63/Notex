@@ -6,6 +6,8 @@ import {
   CreateNoteSchema,
 } from "@/schemas/note-schema";
 
+import { revalidatePath } from "next/cache";
+
 export async function createNote(
   values: CreateNoteSchema
 ) {
@@ -32,7 +34,9 @@ export async function createNote(
     },
   });
 
+  revalidatePath("/");
+
   return {
-    success: "Note created",
+    success: "Note created successfully",
   };
 }
