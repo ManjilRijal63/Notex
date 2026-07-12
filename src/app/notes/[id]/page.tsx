@@ -2,6 +2,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { prisma } from "@/lib/prisma";
 
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 type NotePageProps = {
   params: Promise<{
@@ -52,6 +53,8 @@ export default async function NotePage({
                 note.createdAt
               ).toLocaleDateString()}
             </p>
+
+            
           </div>
 
           <div className="border-t pt-8">
@@ -59,6 +62,13 @@ export default async function NotePage({
               {note.content}
             </p>
           </div>
+
+          <Link
+              href={`/notes/${note.id}/edit`}
+              className="inline-block bg-black text-white px-4 py-2 rounded-lg"
+            >
+              Edit Note
+            </Link>
         </article>
       </main>
     </>

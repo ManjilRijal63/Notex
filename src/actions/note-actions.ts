@@ -34,9 +34,52 @@ export async function createNote(
     },
   });
 
+
   revalidatePath("/");
 
   return {
     success: "Note created successfully",
+  };
+}
+
+
+
+//edit logic
+export async function updateNote(
+  id: string,
+  values: CreateNoteSchema
+) {
+  const validatedFields =
+    createNoteSchema.safeParse(values);
+
+  if (!validatedFields.success) {
+    return {
+      error: "Invalid fields",
+    };
+  }
+
+  const { title, content, tags } =
+    validatedFields.data;
+
+  await prisma.note.update({
+    where: {
+      id,
+    },
+
+    data: {
+      title,
+      content,
+      tags: tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath(`/notes/${id}`);
+
+  return {
+    success: "Note updated successfully",
   };
 }
