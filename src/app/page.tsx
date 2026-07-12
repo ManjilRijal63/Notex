@@ -1,28 +1,70 @@
 import { Navbar } from "@/components/layout/navbar";
+
 import { CreateNoteForm } from "@/components/notes/create-note-form";
+
 import { NoteCard } from "@/components/notes/note-card";
+
+import { SearchBar } from "@/components/notes/search-bar";
+
 import { prisma } from "@/lib/prisma";
 
-export default async function HomePage() {
-  const notes = await prisma.note.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+type HomePageProps = {
+  searchParams: Promise<{
+    search?: string;
+  }>;
+};
+
+export default async function HomePage({
+  searchParams,
+}: HomePageProps) {
+  const { search } =
+    await searchParams;
+
+  const notes =
+    await prisma.note.findMany({
+      where: search
+        ? {
+            OR: [
+              {
+                title: {
+                  contains: search,
+                  mode: "insensitive",
+                },
+              },
+
+              {
+                tags: {
+                  has: search,
+                },
+              },
+            ],
+          }
+        : undefined,
+
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
 
   return (
     <>
       <Navbar />
 
       <main className="max-w-5xl mx-auto px-6 py-10">
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold">
-            Your Notes
-          </h1>
+        <div className="mb-10 space-y-6">
+          <div>
+            <h1 className="text-4xl font-bold">
+              Your Notes
+            </h1>
 
-          <p className="text-muted-foreground mt-2">
-            Organize your thoughts beautifully.
-          </p>
+            <p className="text-muted-foreground mt-2">
+              Organize your thoughts beautifully.
+            </p>
+          </div>
+
+          <SearchBar
+            initialSearch={search}
+          />
         </div>
 
         <div className="grid lg:grid-cols-2 gap-10">
@@ -32,11 +74,11 @@ export default async function HomePage() {
             {notes.length === 0 ? (
               <div className="border rounded-xl p-10 text-center">
                 <h2 className="text-2xl font-semibold mb-2">
-                  No notes yet
+                  No notes found
                 </h2>
 
                 <p className="text-muted-foreground">
-                  Create your first note.
+                  Try a different search.
                 </p>
               </div>
             ) : (
