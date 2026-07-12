@@ -83,3 +83,22 @@ export async function updateNote(
     success: "Note updated successfully",
   };
 }
+
+
+//delete logic 
+
+export async function deleteNote(
+  id: string
+) {
+  await prisma.note.delete({
+    where: {
+      id,
+    },
+  });
+
+  revalidatePath("/");
+
+  return {
+    success: "Note deleted successfully",
+  };
+}

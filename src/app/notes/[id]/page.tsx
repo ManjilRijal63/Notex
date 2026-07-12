@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { DeleteNoteButton } from "@/components/notes/delete-note-button";
 
 type NotePageProps = {
   params: Promise<{
@@ -63,12 +64,20 @@ export default async function NotePage({
             </p>
           </div>
 
-          <Link
-              href={`/notes/${note.id}/edit`}
-              className="inline-block bg-black text-white px-4 py-2 rounded-lg"
-            >
-              Edit Note
-            </Link>
+       <div className="flex gap-3">
+  <Link
+    href={`/notes/${note.id}/edit`}
+    className="inline-block bg-black text-white px-4 py-2 rounded-lg"
+  >
+    Edit Note
+  </Link>
+
+  <DeleteNoteButton
+    noteId={note.id}
+  />
+</div>
+
+
         </article>
       </main>
     </>
